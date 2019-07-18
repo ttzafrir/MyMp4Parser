@@ -12,7 +12,14 @@ import java.io.InputStream;
 
 public class Program {
     public static void main(String[] args) throws IOException, ImageProcessingException {
-        InputStream file = new FileInputStream("C:\\Users\\ttzaf\\Desktop\\Best Samples\\152babd1fc9076a5f8beb7e9a853845445da7e435a9104d62d570acbf5facfcc");
+        String path = "C:\\Users\\ttzaf\\Desktop\\Research\\benign\\Plant - 24105.mp4";
+        FeatureExtractorFixedFeaturesKnowledgeBasedMp4 test = new FeatureExtractorFixedFeaturesKnowledgeBasedMp4();
+        FeatureExtractorFixedFeaturesKnowledgeBasedMp4.extractFeaturesFromSingleElement(path);
+        //printElements(path);
+    }
+
+    private static void printElements(String elementFilePath) throws IOException, ImageProcessingException {
+        InputStream file = new FileInputStream(elementFilePath);
         Metadata metadata = ImageMetadataReader.readMetadata(file);
 
         for (Directory directory : metadata.getDirectories()) {

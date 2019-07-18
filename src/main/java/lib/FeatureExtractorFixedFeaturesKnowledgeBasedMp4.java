@@ -1,33 +1,79 @@
 package lib;//package FeatureExtractors.FeatureExtractorsFixedFeatures.KnowledgeBased;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
+
 //import FeatureExtractors.AFeatureExtractor;
 //import FeatureExtractors.FeatureExtractorsFixedFeatures.AFeatureExtractorFixedFeatures;
 //import Utils._Exceptions.FeatureExtractionException;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+
 
 public class FeatureExtractorFixedFeaturesKnowledgeBasedMp4 {
 
     private enum featuresName {
-        Duration,
-        Minor_Version,
         Major_Brand,
-        Height,
+        Minor_Version,
+        Compatible_Brands,
+        Creation_Time,
+        Modification_Time,
+        Duration,
+        Media_Time_Scale,
+        Duration_in_Seconds,
+        Transformation_Matrix,
+        Preferred_Rate,
+        Preferred_Volume,
+        Next_Track_ID,
+        Rotation,
+        ISO_639_2_Language_Code,
+        Opcolor,
+        Graphics_Mode,
+        Compression_Type,
         Width,
-        Sample_Size,
-        Sample_Rate,
+        Height,
+        Compressor_Name,
+        Depth,
+        Horizontal_Resolution,
+        Vertical_Resolution,
+        Frame_Rate,
+        Detected_File_Type_Name,
+        Detected_File_Type_Long_Name,
+        Detected_MIME_Type,
+        Expected_File_Name_Extension,
     } // list of the feature names
 
     public FeatureExtractorFixedFeaturesKnowledgeBasedMp4() {
     } // Empty constructor
 
 
-    public LinkedHashMap<String, String> extractFeaturesFromSingleElement(Object element)  {
+    public static LinkedHashMap<String, String> extractFeaturesFromSingleElement(String elementFilePath) throws ImageProcessingException, IOException {
+
         LinkedHashMap<String, String> features = new LinkedHashMap<>();
+        HashMap<String, String> featuresHashMap = someFunction(elementFilePath);
+        //Set<String> hashKeySet = featuresHashMap.keySet();
+        for (featuresName featureName : featuresName.values()) {
+            //boolean containsKey = hashKeySet.contains(featureName.toString());
+            boolean containsKey = featuresHashMap.containsKey(featureName.toString());
+            if (containsKey) {
+                features.put(featureName.toString(),featuresHashMap.get(featureName));
+            } else {
+                //System.out.println(featureName);
+                features.put(featureName.toString(),null);
+            }
+
+        }
 
 
-        features.put(featuresName.Duration.toString(), someFunction());
+
+        //features.put(featuresName.Duration.toString(), someFunction());
         //Using the Mp4 Parser to extract the relevant features and add them to the Map.
         //Make sure to insert the features to the map at the same order as they are in the enum.
         //Use try-catch to protect the code
@@ -36,8 +82,23 @@ public class FeatureExtractorFixedFeaturesKnowledgeBasedMp4 {
     }
 
     //<editor-fold desc="Extractor Methods">
-    private String someFunction() {
-        return "some value";
+    private static HashMap<String, String> someFunction(String elementFilePath) throws ImageProcessingException, IOException {
+        InputStream file = new FileInputStream(elementFilePath);
+        Metadata metadata = ImageMetadataReader.readMetadata(file);
+        HashMap<String, String> params = new HashMap<>();
+
+        for (Directory directory : metadata.getDirectories()) {
+            for (Tag tag : directory.getTags()) {
+                String name = tag.getTagName().replace(" ","_").replace("-","_"); // temporary solution
+                params.put(name, tag.getDescription());
+            }
+            if (directory.hasErrors()) {
+                for (String error : directory.getErrors()) {
+                    System.err.format("ERROR: %s", error);
+                }
+            }
+        }
+        return params;
     }
     //</editor-fold>
     //@Override
